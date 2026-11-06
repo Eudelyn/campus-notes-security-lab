@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Cross-origin test (lab only)</title></head>
+<body>
+<h1>Untrusted-origin test page</h1>
+<p>Serve this from a <em>different origin</em> with <code>php -S 127.0.0.1:8001 -t tests</code>,
+sign in to Campus Notes at <code>http://127.0.0.1:8000</code> in the same browser profile, then open
+<code>http://127.0.0.1:8001/cross-origin-test.html</code>. Watch the Network tab and the PHP terminal.</p>
+<button id="read">1. Try to read user 2's notes</button>
+<button id="write">2. Try to change note 3 (simple text/plain POST)</button>
+<pre id="out"></pre>
+<script>
+const out = document.getElementById('out');
+const api = 'http://127.0.0.1:8000/api.php';
+function show(label, text) { out.textContent += label + ': ' + text + '\n'; }
+
+document.getElementById('read').onclick = async () => {
+  try {
+    const r = await fetch(api + '?user_id=2', { credentials: 'include' });
+    show('READ', r.status + ' ' + await r.text());
+  } catch (err) {
+    show('READ', 'blocked by the browser (no CORS permission): ' + err.message);
+  }
+};
+
+document.getElementById('write').onclick = async () => {
+  try {
+    const r = await fetch(api, {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ id: 3, title: 'changed cross-origin', body: 'test' })
+    });
+    show('WRITE', r.status + ' ' + await r.text());
+  } catch (err) {
+    show('WRITE', 'response unreadable (check the Network tab status and whether note 3 changed): ' + err.message);
+  }
+};
+</script>
+</body>
+</html>

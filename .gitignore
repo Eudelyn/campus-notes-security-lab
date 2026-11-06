@@ -1,0 +1,11 @@
+# Secrets and local config — never commit
+.env
+*.env
+# Composer (if used later)
+/vendor/
+# Logs and OS/editor files
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
